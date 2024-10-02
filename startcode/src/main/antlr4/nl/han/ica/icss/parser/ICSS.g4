@@ -45,7 +45,7 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: stylerule*;
+stylesheet: stylerule*|variable* stylerule*|variable*;
 
 //Stylerule
 stylerule: tagselector OPEN_BRACE (insidestylerule)+ CLOSE_BRACE;
@@ -53,14 +53,16 @@ tagselector : ID_IDENT
             | CLASS_IDENT
             | LOWER_IDENT
             | CAPITAL_IDENT;
-insidestylerule : colordeclaration COLON (COLOR) SEMICOLON
-                | sizedeclaration COLON (PIXELSIZE) SEMICOLON;
+insidestylerule : colordeclaration COLON (COLOR|variablename) SEMICOLON
+                | sizedeclaration COLON (PIXELSIZE|variablename) SEMICOLON;
 colordeclaration: 'background-color'|'color';
 sizedeclaration: 'width'|'height';
 
 //Variables
-variable: CAPITAL_IDENT ASSIGNMENT_OPERATOR (TRUE
+variable: variablename ASSIGNMENT_OPERATOR (TRUE
                                             |FALSE
                                             |PIXELSIZE
                                             |PERCENTAGE
-                                            |SCALAR);
+                                            |SCALAR
+                                            |COLOR) SEMICOLON;
+variablename: CAPITAL_IDENT;
