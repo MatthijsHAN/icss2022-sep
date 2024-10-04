@@ -5,6 +5,7 @@ grammar ICSS;
 // IF support:
 IF: 'if';
 ELSE: 'else';
+EQUALS: '==';
 BOX_BRACKET_OPEN: '[';
 BOX_BRACKET_CLOSE: ']';
 
@@ -34,35 +35,56 @@ WS: [ \t\r\n]+ -> skip;
 //
 OPEN_BRACE: '{';
 CLOSE_BRACE: '}';
+OPEN_PARENTHESIS: '(';
+CLOSE_PARENTHESIS: ')';
 SEMICOLON: ';';
 COLON: ':';
 PLUS: '+';
 MIN: '-';
 MUL: '*';
+DIV: '/';
 ASSIGNMENT_OPERATOR: ':=';
-
-
-
 
 //--- PARSER: ---
 stylesheet: stylerule*|variable* stylerule*|variable*;
 
 //Stylerule
-stylerule: tagselector OPEN_BRACE (insidestylerule)+ CLOSE_BRACE;
+stylerule: tagselector OPEN_BRACE (insidestylerule)* CLOSE_BRACE;
 tagselector : ID_IDENT
             | CLASS_IDENT
-            | LOWER_IDENT
-            | CAPITAL_IDENT;
+            | LOWER_IDENT;
 insidestylerule : colordeclaration COLON (COLOR|variablename) SEMICOLON
-                | sizedeclaration COLON (PIXELSIZE|variablename) SEMICOLON;
+                | sizedeclaration COLON (PERCENTAGE|PIXELSIZE|variablename|term) SEMICOLON
+                | variable
+                | if;
 colordeclaration: 'background-color'|'color';
 sizedeclaration: 'width'|'height';
 
+//If-Else
+if: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE (insidestylerule|if)* CLOSE_BRACE else?;
+else: ELSE OPEN_BRACE (insidestylerule|if)* CLOSE_BRACE;
+clause: variablename
+      | (factor|term|TRUE|FALSE) EQUALS (factor|term|TRUE|FALSE);
+
 //Variables
 variable: variablename ASSIGNMENT_OPERATOR (TRUE
-                                            |FALSE
-                                            |PIXELSIZE
-                                            |PERCENTAGE
-                                            |SCALAR
-                                            |COLOR) SEMICOLON;
+                                           |FALSE
+                                           |PIXELSIZE
+                                           |PERCENTAGE
+                                           |SCALAR
+                                           |COLOR
+                                           |term) SEMICOLON;
 variablename: CAPITAL_IDENT;
+
+//Calculations
+term: term (PLUS|MIN) expression
+    | expression;
+
+expression: expression (MUL|DIV) factor
+          | factor;
+
+factor: SCALAR
+      | PIXELSIZE
+      | PERCENTAGE
+      | variablename
+      | OPEN_PARENTHESIS term CLOSE_PARENTHESIS;

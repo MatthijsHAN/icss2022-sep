@@ -238,7 +238,7 @@ public class Fixtures {
 				if[AdjustColor] {
 	    			color: #124532;
 	    			if[UseLinkColor]{
-	        			bg-color: LinkColor;
+	        			background-color: LinkColor;
 	    			}
 				}
 			}
@@ -247,6 +247,7 @@ public class Fixtures {
 				width: ParWidth;
 				if[AdjustColor] {
 	    			color: #124532;
+	    		}
 	    		if[UseLinkColor]{
 	        		background-color: LinkColor;
 	    		} else {
