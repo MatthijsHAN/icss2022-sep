@@ -46,23 +46,20 @@ DIV: '/';
 ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
-stylesheet: stylerule*|variable* stylerule*|variable*;
+stylesheet: (stylerule|variable)* (stylerule|variable)*;
 
 //Stylerule
-stylerule: tagselector OPEN_BRACE (insidestylerule)* CLOSE_BRACE;
+stylerule: tagselector OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
 tagselector : ID_IDENT
             | CLASS_IDENT
             | LOWER_IDENT;
-insidestylerule : colordeclaration COLON (COLOR|variablename) SEMICOLON
-                | sizedeclaration COLON (PERCENTAGE|PIXELSIZE|variablename|term) SEMICOLON
-                | variable
-                | if;
-colordeclaration: 'background-color'|'color';
-sizedeclaration: 'width'|'height';
+stylerulebody: ('background-color'|'color'|'width'|'height') COLON (PERCENTAGE|PIXELSIZE|variablename|term) SEMICOLON
+             | variable
+             | opt;
 
 //If-Else
-if: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE (insidestylerule|if)* CLOSE_BRACE else?;
-else: ELSE OPEN_BRACE (insidestylerule|if)* CLOSE_BRACE;
+opt: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE (stylerulebody|opt)* CLOSE_BRACE then?;
+then: ELSE OPEN_BRACE (stylerulebody|opt)* CLOSE_BRACE;
 clause: variablename
       | (factor|term|TRUE|FALSE) EQUALS (factor|term|TRUE|FALSE);
 
