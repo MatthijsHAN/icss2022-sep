@@ -3,6 +3,7 @@ package nl.han.ica.icss.parser;
 import java.util.Stack;
 
 
+import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
@@ -23,12 +24,11 @@ public class ASTListener extends ICSSBaseListener {
 
 	//Use this to keep track of the parent nodes when recursively traversing the ast
 	//private IHANStack<ASTNode> currentContainer;
-    private Stack<ASTNode> currentContainer;
+    private HANStack<ASTNode> currentContainer;
 
 	public ASTListener() {
 		ast = new AST();
-		//currentContainer = new HANStack<>();
-        currentContainer = new Stack<>();
+        currentContainer = new HANStack<>();
 	}
     public AST getAST() {
         return ast;
@@ -146,76 +146,76 @@ public class ASTListener extends ICSSBaseListener {
         }
     }
 
-    @Override
-    public void enterTerm(ICSSParser.TermContext ctx) {
-        Literal literal;
-        if (ctx.COLOR() != null) {
-            literal = new ColorLiteral(ctx.getText());
-        } else if (ctx.PIXELSIZE() != null) {
-            literal = new PixelLiteral(ctx.getText());
-        } else if (ctx.PERCENTAGE() != null) {
-            literal = new PercentageLiteral(ctx.getText());
-        } else if (ctx.SCALAR() != null) {
-            literal = new ScalarLiteral(ctx.getText());
-        } else {
-            literal = new Literal();
-        }
-        currentContainer.push(literal);
-    }
-
-    @Override
-    public void exitTerm(ICSSParser.TermContext ctx) {
-        Literal literal = (Literal) currentContainer.pop();
-        if (currentContainer.peek() instanceof Expression) {
-            ((Expression) currentContainer.peek()).addChild(literal);
-        } else if (currentContainer.peek() instanceof VariableAssignment) {
-            ((VariableAssignment) currentContainer.peek()).expression = literal;
-        }
-    }
-
-    @Override
-    public void enterExpression(ICSSParser.ExpressionContext ctx) {
-        // Check if this is an operation (add/subtract/multiply)
-        if (ctx.ADD() != null) {
-            currentContainer.push(new AddOperation());
-        } else if (ctx.SUBTRACT() != null) {
-            currentContainer.push(new SubtractOperation());
-        } else if (ctx.MULTIPLY() != null) {
-            currentContainer.push(new MultiplyOperation());
-        } else {
-            Expression expr = new Expression();
-            currentContainer.push(expr);
-        }
-    }
-
-    @Override
-    public void exitExpression(ICSSParser.ExpressionContext ctx) {
-        Expression expr = (Expression) currentContainer.pop();
-        if (currentContainer.peek() instanceof VariableAssignment) {
-            ((VariableAssignment) currentContainer.peek()).expression = expr;
-        } else if (currentContainer.peek() instanceof Declaration) {
-            ((Declaration) currentContainer.peek()).expression = expr;
-        } else {
-            currentContainer.peek().addChild(expr);
-        }
-    }
-
-    @Override
-    public void enterFactor(ICSSParser.FactorContext ctx) {
-        // Factor is part of an expression; handle it similarly to terms or operations
-        Expression expr = new Expression();
-        currentContainer.push(expr);
-    }
-
-    @Override
-    public void exitFactor(ICSSParser.FactorContext ctx) {
-        Expression expr = (Expression) currentContainer.pop();
-        if (currentContainer.peek() instanceof Operation) {
-            ((Operation) currentContainer.peek()).addChild(expr);
-        } else if (currentContainer.peek() instanceof Expression) {
-            ((Expression) currentContainer.peek()).addChild(expr);
-        }
-    }
+//    @Override
+//    public void enterTerm(ICSSParser.TermContext ctx) {
+//        Literal literal;
+//        if (ctx.COLOR() != null) {
+//            literal = new ColorLiteral(ctx.getText());
+//        } else if (ctx.PIXELSIZE() != null) {
+//            literal = new PixelLiteral(ctx.getText());
+//        } else if (ctx.PERCENTAGE() != null) {
+//            literal = new PercentageLiteral(ctx.getText());
+//        } else if (ctx.SCALAR() != null) {
+//            literal = new ScalarLiteral(ctx.getText());
+//        } else {
+//            literal = new Literal();
+//        }
+//        currentContainer.push(literal);
+//    }
+//
+//    @Override
+//    public void exitTerm(ICSSParser.TermContext ctx) {
+//        Literal literal = (Literal) currentContainer.pop();
+//        if (currentContainer.peek() instanceof Expression) {
+//            ((Expression) currentContainer.peek()).addChild(literal);
+//        } else if (currentContainer.peek() instanceof VariableAssignment) {
+//            ((VariableAssignment) currentContainer.peek()).expression = literal;
+//        }
+//    }
+//
+//    @Override
+//    public void enterExpression(ICSSParser.ExpressionContext ctx) {
+//        // Check if this is an operation (add/subtract/multiply)
+//        if (ctx.ADD() != null) {
+//            currentContainer.push(new AddOperation());
+//        } else if (ctx.SUBTRACT() != null) {
+//            currentContainer.push(new SubtractOperation());
+//        } else if (ctx.MULTIPLY() != null) {
+//            currentContainer.push(new MultiplyOperation());
+//        } else {
+//            Expression expr = new Expression();
+//            currentContainer.push(expr);
+//        }
+//    }
+//
+//    @Override
+//    public void exitExpression(ICSSParser.ExpressionContext ctx) {
+//        Expression expr = (Expression) currentContainer.pop();
+//        if (currentContainer.peek() instanceof VariableAssignment) {
+//            ((VariableAssignment) currentContainer.peek()).expression = expr;
+//        } else if (currentContainer.peek() instanceof Declaration) {
+//            ((Declaration) currentContainer.peek()).expression = expr;
+//        } else {
+//            currentContainer.peek().addChild(expr);
+//        }
+//    }
+//
+//    @Override
+//    public void enterFactor(ICSSParser.FactorContext ctx) {
+//        // Factor is part of an expression; handle it similarly to terms or operations
+//        Expression expr = new Expression();
+//        currentContainer.push(expr);
+//    }
+//
+//    @Override
+//    public void exitFactor(ICSSParser.FactorContext ctx) {
+//        Expression expr = (Expression) currentContainer.pop();
+//        if (currentContainer.peek() instanceof Operation) {
+//            ((Operation) currentContainer.peek()).addChild(expr);
+//        } else if (currentContainer.peek() instanceof Expression) {
+//            ((Expression) currentContainer.peek()).addChild(expr);
+//        }
+//    }
 
 
 }
