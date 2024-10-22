@@ -1,17 +1,8 @@
 package nl.han.ica.icss.parser;
 
-import java.util.Stack;
-
 
 import nl.han.ica.datastructures.HANStack;
-import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.*;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
-import nl.han.ica.icss.ast.selectors.ClassSelector;
-import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 
 /**
@@ -57,23 +48,24 @@ public class ASTListener extends ICSSBaseListener {
         currentContainer.peek().addChild(stylerule);
     }
 
-    @Override
-    public void enterTagselector(ICSSParser.TagselectorContext ctx) {
-        TagSelector tagSelector = new TagSelector(ctx.getText());
-        currentContainer.push(tagSelector);
-    }
-
-    @Override
-    public void exitTagselector(ICSSParser.TagselectorContext ctx) {
-        TagSelector tagSelector = (TagSelector) currentContainer.pop();
-        currentContainer.peek().addChild(tagSelector);
-    }
+//    @Override
+//    public void enterTagselector(ICSSParser.TagselectorContext ctx) {
+//        TagSelector tagSelector = new TagSelector(ctx.getText());
+//        currentContainer.push(tagSelector);
+//    }
+//
+//    @Override
+//    public void exitTagselector(ICSSParser.TagselectorContext ctx) {
+//        TagSelector tagSelector = (TagSelector) currentContainer.pop();
+//        currentContainer.peek().addChild(tagSelector);
+//    }
 
     @Override
     public void enterStylerulebody(ICSSParser.StylerulebodyContext ctx) {
-        Declaration declaration = new Declaration(ctx.getText());
+        Declaration declaration = new Declaration(ctx.getChild(0).getText());
         currentContainer.push(declaration);
     }
+
 
     @Override
     public void exitStylerulebody(ICSSParser.StylerulebodyContext ctx) {
@@ -118,33 +110,33 @@ public class ASTListener extends ICSSBaseListener {
 //        ifClause.addChild(elseClause);
 //    }
 
-    @Override
-    public void enterVariable(ICSSParser.VariableContext ctx) {
-        VariableAssignment variableAssignment = new VariableAssignment();
-        currentContainer.push(variableAssignment);
-    }
+//    @Override
+//    public void enterVariable(ICSSParser.VariableContext ctx) {
+//        VariableAssignment variableAssignment = new VariableAssignment();
+//        currentContainer.push(variableAssignment);
+//    }
 
-    @Override
-    public void exitVariable(ICSSParser.VariableContext ctx) {
-        VariableAssignment variableAssignment = (VariableAssignment) currentContainer.pop();
-        currentContainer.peek().addChild(variableAssignment);
-    }
-
-    @Override
-    public void enterVariablename(ICSSParser.VariablenameContext ctx) {
-        VariableReference variableReference = new VariableReference(ctx.getText());
-        currentContainer.push(variableReference);
-    }
-
-    @Override
-    public void exitVariablename(ICSSParser.VariablenameContext ctx) {
-        VariableReference variableReference = (VariableReference) currentContainer.pop();
-        if (currentContainer.peek() instanceof VariableAssignment) {
-            ((VariableAssignment) currentContainer.peek()).name = variableReference;
-        } else if (currentContainer.peek() instanceof Expression) {
-            ((Expression) currentContainer.peek()).addChild(variableReference);
-        }
-    }
+//    @Override
+//    public void exitVariable(ICSSParser.VariableContext ctx) {
+//        VariableAssignment variableAssignment = (VariableAssignment) currentContainer.pop();
+//        currentContainer.peek().addChild(variableAssignment);
+//    }
+//
+//    @Override
+//    public void enterVariablename(ICSSParser.VariablenameContext ctx) {
+//        VariableReference variableReference = new VariableReference(ctx.getText());
+//        currentContainer.push(variableReference);
+//    }
+//
+//    @Override
+//    public void exitVariablename(ICSSParser.VariablenameContext ctx) {
+//        VariableReference variableReference = (VariableReference) currentContainer.pop();
+//        if (currentContainer.peek() instanceof VariableAssignment) {
+//            ((VariableAssignment) currentContainer.peek()).name = variableReference;
+//        } else if (currentContainer.peek() instanceof Expression) {
+//            ((Expression) currentContainer.peek()).addChild(variableReference);
+//        }
+//    }
 
 //    @Override
 //    public void enterTerm(ICSSParser.TermContext ctx) {

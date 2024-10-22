@@ -46,42 +46,48 @@ DIV: '/';
 ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
-stylesheet: (stylerule|variable)* (stylerule|variable)*;
+stylesheet: (stylerule|variableAssignment)* (stylerule|variableAssignment)* EOF;
 
 //Stylerule
-stylerule: tagselector OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
-tagselector : ID_IDENT
-            | CLASS_IDENT
-            | LOWER_IDENT;
-stylerulebody: ('background-color'|'color'|'width'|'height') COLON (PERCENTAGE|PIXELSIZE|variablename|term) SEMICOLON
-             | variable
+stylerule: selector OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
+
+selector: ID_IDENT     #idSelector
+        | CLASS_IDENT  #classSelector
+        | LOWER_IDENT  #tagSelector;
+
+stylerulebody: propertyName COLON expression SEMICOLON
+             | variableAssignment
              | opt;
 
+propertyName: 'background-color'
+            | 'color'
+            | 'width'
+            | 'height';
+
 //If-Else
-opt: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE (stylerulebody|opt)* CLOSE_BRACE then?;
-then: ELSE OPEN_BRACE (stylerulebody|opt)* CLOSE_BRACE;
-clause: variablename
-      | (factor|term|TRUE|FALSE) EQUALS (factor|term|TRUE|FALSE);
+opt: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
+
+clause: variableName
+      | expression EQUALS expression;
+
+then: ELSE OPEN_BRACE stylerulebody* CLOSE_BRACE;
 
 //Variables
-variable: variablename ASSIGNMENT_OPERATOR (TRUE
-                                           |FALSE
-                                           |PIXELSIZE
-                                           |PERCENTAGE
-                                           |SCALAR
-                                           |COLOR
-                                           |term) SEMICOLON;
-variablename: CAPITAL_IDENT;
+variableAssignment: variableName ASSIGNMENT_OPERATOR expression SEMICOLON;
+
+variableName: CAPITAL_IDENT;
 
 //Calculations
-term: term (PLUS|MIN) expression
-    | expression;
+expression: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
+          | expression (MUL|DIV) expression
+          | expression (PLUS|MIN) expression
+          | literal;
 
-expression: expression (MUL|DIV) factor
-          | factor;
+literal: COLOR               #colorLiteral
+       | PERCENTAGE          #percentageLiteral
+       | PIXELSIZE           #pixelLiteral
+       | MIN? SCALAR         #scalarLiteral
+       | TRUE                #boolLiteral
+       | FALSE               #boolLiteral
+       | variableName        #variableReference;
 
-factor: SCALAR
-      | PIXELSIZE
-      | PERCENTAGE
-      | variablename
-      | OPEN_PARENTHESIS term CLOSE_PARENTHESIS;
