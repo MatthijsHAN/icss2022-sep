@@ -46,6 +46,8 @@ DIV: '/';
 ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
+
+//Miss later ook toestaan dat een style rule in een if gaat en een if in stylesheet?
 stylesheet: (stylerule|variableAssignment)* (stylerule|variableAssignment)* EOF;
 
 //Stylerule
@@ -55,9 +57,11 @@ selector: ID_IDENT     #idSelector
         | CLASS_IDENT  #classSelector
         | LOWER_IDENT  #tagSelector;
 
-stylerulebody: propertyName COLON expression SEMICOLON
+stylerulebody: declaration
              | variableAssignment
              | opt;
+
+declaration: propertyName COLON expression SEMICOLON;
 
 propertyName: 'background-color'
             | 'color'
@@ -65,10 +69,7 @@ propertyName: 'background-color'
             | 'height';
 
 //If-Else
-opt: IF BOX_BRACKET_OPEN clause BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
-
-clause: variableName
-      | expression EQUALS expression;
+opt: IF BOX_BRACKET_OPEN expression (EQUALS expression)? BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
 
 then: ELSE OPEN_BRACE stylerulebody* CLOSE_BRACE;
 
@@ -78,10 +79,16 @@ variableAssignment: variableName ASSIGNMENT_OPERATOR expression SEMICOLON;
 variableName: CAPITAL_IDENT;
 
 //Calculations
-expression: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
-          | expression (MUL|DIV) expression
-          | expression (PLUS|MIN) expression
-          | literal;
+expression: expression PLUS term          # additionOperation
+          | expression MIN term           # subtractOperation
+          | term                          # passToTerm;
+
+term: term MUL factor               # multiplyOperation
+    | term DIV factor               # divisionOperation
+    | factor                        # passToFactor;
+
+factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
+      | literal;
 
 literal: COLOR               #colorLiteral
        | PERCENTAGE          #percentageLiteral
@@ -90,4 +97,5 @@ literal: COLOR               #colorLiteral
        | TRUE                #boolLiteral
        | FALSE               #boolLiteral
        | variableName        #variableReference;
+
 

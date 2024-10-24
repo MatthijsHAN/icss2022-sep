@@ -4,6 +4,10 @@ package nl.han.ica.icss.parser;
 import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
+import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.DivisionOperation;
+import nl.han.ica.icss.ast.operations.MultiplyOperation;
+import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
@@ -31,236 +35,248 @@ public class ASTListener extends ICSSBaseListener {
     @Override
     public void enterStylesheet(ICSSParser.StylesheetContext ctx) {
         Stylesheet stylesheet = new Stylesheet();
-        currentContainer.push(stylesheet);
+        currentContainer.push(stylesheet); // Push stylesheet to the stack
     }
 
     @Override
     public void exitStylesheet(ICSSParser.StylesheetContext ctx) {
         Stylesheet stylesheet = (Stylesheet) currentContainer.pop();
-        ast.root = stylesheet;
+        ast.setRoot(stylesheet); // Set as root of the AST
     }
 
     @Override
     public void enterStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = new Stylerule();
-        currentContainer.push(stylerule);
+        currentContainer.push(stylerule); // Push stylerule to the stack
     }
 
     @Override
     public void exitStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = (Stylerule) currentContainer.pop();
-        currentContainer.peek().addChild(stylerule);
+        currentContainer.peek().addChild(stylerule); // Link stylerule to parent
     }
 
     @Override
-    public void enterStylerulebody(ICSSParser.StylerulebodyContext ctx) {
-        Declaration declaration = new Declaration(ctx.getChild(0).getText());
-        currentContainer.push(declaration);
+    public void enterDeclaration(ICSSParser.DeclarationContext ctx) {
+        Declaration declaration = new Declaration(ctx.getChild(0).getText()); // Create a new declaration
+        currentContainer.push(declaration); // Push declaration to the stack
     }
 
     @Override
-    public void exitStylerulebody(ICSSParser.StylerulebodyContext ctx) {
+    public void exitDeclaration(ICSSParser.DeclarationContext ctx) {
         Declaration declaration = (Declaration) currentContainer.pop();
-        currentContainer.peek().addChild(declaration);
+        currentContainer.peek().addChild(declaration); // Link declaration to parent
     }
 
-    // Handle IdSelector
+    // Handling expressions for operations
     @Override
-    public void enterIdSelector(ICSSParser.IdSelectorContext ctx) {
-        IdSelector idSelector = new IdSelector(ctx.getText());
-        currentContainer.push(idSelector);
-    }
-
-    @Override
-    public void exitIdSelector(ICSSParser.IdSelectorContext ctx) {
-        IdSelector idSelector = (IdSelector) currentContainer.pop();
-        currentContainer.peek().addChild(idSelector);
-    }
-
-    // Handle ClassSelector
-    @Override
-    public void enterClassSelector(ICSSParser.ClassSelectorContext ctx) {
-        ClassSelector classSelector = new ClassSelector(ctx.getText());
-        currentContainer.push(classSelector);
+    public void enterAdditionOperation(ICSSParser.AdditionOperationContext ctx) {
+        AddOperation addOp = new AddOperation(); // Create an AddOperation node
+        currentContainer.push(addOp); // Push to stack
     }
 
     @Override
-    public void exitClassSelector(ICSSParser.ClassSelectorContext ctx) {
-        ClassSelector classSelector = (ClassSelector) currentContainer.pop();
-        currentContainer.peek().addChild(classSelector);
-    }
-
-    // Handle TagSelector
-    @Override
-    public void enterTagSelector(ICSSParser.TagSelectorContext ctx) {
-        TagSelector tagSelector = new TagSelector(ctx.getText());
-        currentContainer.push(tagSelector);
+    public void exitAdditionOperation(ICSSParser.AdditionOperationContext ctx) {
+        AddOperation addOp = (AddOperation) currentContainer.pop();
+        currentContainer.peek().addChild(addOp); // Link to the parent node
     }
 
     @Override
-    public void exitTagSelector(ICSSParser.TagSelectorContext ctx) {
-        TagSelector tagSelector = (TagSelector) currentContainer.pop();
-        currentContainer.peek().addChild(tagSelector);
-    }
-
-    // Handle PropertyName
-    @Override
-    public void enterPropertyName(ICSSParser.PropertyNameContext ctx) {
-        PropertyName propertyName = new PropertyName(ctx.getText());
-        currentContainer.push(propertyName);
+    public void enterSubtractOperation(ICSSParser.SubtractOperationContext ctx) {
+        SubtractOperation subOp = new SubtractOperation(); // Create SubtractOperation node
+        currentContainer.push(subOp); // Push to stack
     }
 
     @Override
-    public void exitPropertyName(ICSSParser.PropertyNameContext ctx) {
-        PropertyName propertyName = (PropertyName) currentContainer.pop();
-        currentContainer.peek().addChild(propertyName);
-    }
-
-
-    //CHECK
-    // Handle VariableAssignment
-    @Override
-    public void enterVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
-        VariableAssignment variableAssignment = new VariableAssignment();
-        currentContainer.push(variableAssignment);
+    public void exitSubtractOperation(ICSSParser.SubtractOperationContext ctx) {
+        SubtractOperation subOp = (SubtractOperation) currentContainer.pop();
+        currentContainer.peek().addChild(subOp); // Link to the parent node
     }
 
     @Override
-    public void exitVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
-        VariableAssignment variableAssignment = (VariableAssignment) currentContainer.pop();
-        currentContainer.peek().addChild(variableAssignment);
-    }
-
-    // Handle VariableReference
-    @Override
-    public void enterVariableReference(ICSSParser.VariableReferenceContext ctx) {
-        VariableReference variableReference = new VariableReference(ctx.getText());
-        currentContainer.push(variableReference);
+    public void enterMultiplyOperation(ICSSParser.MultiplyOperationContext ctx) {
+        MultiplyOperation mulOp = new MultiplyOperation(); // Create MultiplyOperation node
+        currentContainer.push(mulOp); // Push to stack
     }
 
     @Override
-    public void exitVariableReference(ICSSParser.VariableReferenceContext ctx) {
-        VariableReference variableReference = (VariableReference) currentContainer.pop();
-        currentContainer.peek().addChild(variableReference);
+    public void exitMultiplyOperation(ICSSParser.MultiplyOperationContext ctx) {
+        MultiplyOperation mulOp = (MultiplyOperation) currentContainer.pop();
+        currentContainer.peek().addChild(mulOp); // Link to the parent node
     }
 
-    //CHECK
-    // Handle Expression
-//    @Override
-//    public void enterExpression(ICSSParser.ExpressionContext ctx) {
-//        Expression expression = new Expression(ctx.getText());
-//        currentContainer.push(expression);
-//    }
-//
-//    @Override
-//    public void exitExpression(ICSSParser.ExpressionContext ctx) {
-//        Expression expression = (Expression) currentContainer.pop();
-//        currentContainer.peek().addChild(expression);
-//    }
+    @Override
+    public void enterDivisionOperation(ICSSParser.DivisionOperationContext ctx) {
+        DivisionOperation divOp = new DivisionOperation(); // Create DivisionOperation node
+        currentContainer.push(divOp); // Push to stack
+    }
 
-    // Handle ColorLiteral
+    @Override
+    public void exitDivisionOperation(ICSSParser.DivisionOperationContext ctx) {
+        DivisionOperation divOp = (DivisionOperation) currentContainer.pop();
+        currentContainer.peek().addChild(divOp); // Link to the parent node
+    }
+
+    // Literal handling
     @Override
     public void enterColorLiteral(ICSSParser.ColorLiteralContext ctx) {
-        ColorLiteral colorLiteral = new ColorLiteral(ctx.getText());
-        currentContainer.push(colorLiteral);
+        ColorLiteral colorLiteral = new ColorLiteral(ctx.getText()); // Create ColorLiteral node
+        currentContainer.push(colorLiteral); // Push to stack
     }
 
     @Override
     public void exitColorLiteral(ICSSParser.ColorLiteralContext ctx) {
         ColorLiteral colorLiteral = (ColorLiteral) currentContainer.pop();
-        currentContainer.peek().addChild(colorLiteral);
+        currentContainer.peek().addChild(colorLiteral); // Link to parent
     }
 
-    // Handle PercentageLiteral
     @Override
     public void enterPercentageLiteral(ICSSParser.PercentageLiteralContext ctx) {
-        PercentageLiteral percentageLiteral = new PercentageLiteral(ctx.getText());
-        currentContainer.push(percentageLiteral);
+        PercentageLiteral percentageLiteral = new PercentageLiteral(ctx.getText()); // Create PercentageLiteral node
+        currentContainer.push(percentageLiteral); // Push to stack
     }
 
     @Override
     public void exitPercentageLiteral(ICSSParser.PercentageLiteralContext ctx) {
         PercentageLiteral percentageLiteral = (PercentageLiteral) currentContainer.pop();
-        currentContainer.peek().addChild(percentageLiteral);
+        currentContainer.peek().addChild(percentageLiteral); // Link to parent
     }
 
-    // Handle PixelLiteral
     @Override
     public void enterPixelLiteral(ICSSParser.PixelLiteralContext ctx) {
-        PixelLiteral pixelLiteral = new PixelLiteral(ctx.getText());
-        currentContainer.push(pixelLiteral);
+        PixelLiteral pixelLiteral = new PixelLiteral(ctx.getText()); // Create PixelLiteral node
+        currentContainer.push(pixelLiteral); // Push to stack
     }
 
     @Override
     public void exitPixelLiteral(ICSSParser.PixelLiteralContext ctx) {
         PixelLiteral pixelLiteral = (PixelLiteral) currentContainer.pop();
-        currentContainer.peek().addChild(pixelLiteral);
+        currentContainer.peek().addChild(pixelLiteral); // Link to parent
     }
 
-    // Handle ScalarLiteral
     @Override
     public void enterScalarLiteral(ICSSParser.ScalarLiteralContext ctx) {
-        ScalarLiteral scalarLiteral = new ScalarLiteral(ctx.getText());
-        currentContainer.push(scalarLiteral);
+        ScalarLiteral scalarLiteral = new ScalarLiteral(ctx.getText()); // Create ScalarLiteral node
+        currentContainer.push(scalarLiteral); // Push to stack
     }
 
     @Override
     public void exitScalarLiteral(ICSSParser.ScalarLiteralContext ctx) {
         ScalarLiteral scalarLiteral = (ScalarLiteral) currentContainer.pop();
-        currentContainer.peek().addChild(scalarLiteral);
+        currentContainer.peek().addChild(scalarLiteral); // Link to parent
     }
 
-    // Handle BoolLiteral
     @Override
     public void enterBoolLiteral(ICSSParser.BoolLiteralContext ctx) {
-        BoolLiteral boolLiteral = new BoolLiteral(ctx.getText());
-        currentContainer.push(boolLiteral);
+        BoolLiteral boolLiteral = new BoolLiteral(ctx.getText()); // Create BoolLiteral node
+        currentContainer.push(boolLiteral); // Push to stack
     }
 
     @Override
     public void exitBoolLiteral(ICSSParser.BoolLiteralContext ctx) {
         BoolLiteral boolLiteral = (BoolLiteral) currentContainer.pop();
-        currentContainer.peek().addChild(boolLiteral);
+        currentContainer.peek().addChild(boolLiteral); // Link to parent
     }
 
-    // Handle Opt
+    @Override
+    public void enterVariableReference(ICSSParser.VariableReferenceContext ctx) {
+        VariableReference varReference = new VariableReference(ctx.getText()); // Create VariableReference node
+        currentContainer.push(varReference); // Push to stack
+    }
+
+    @Override
+    public void exitVariableReference(ICSSParser.VariableReferenceContext ctx) {
+        VariableReference varReference = (VariableReference) currentContainer.pop();
+        currentContainer.peek().addChild(varReference); // Link to parent
+    }
+
+    @Override
+    public void enterVariableName(ICSSParser.VariableNameContext ctx) {
+        VariableReference varReference = new VariableReference(ctx.getText()); // Create VariableReference node
+        currentContainer.push(varReference); // Push to stack
+    }
+
+    @Override
+    public void exitVariableName(ICSSParser.VariableNameContext ctx) {
+        VariableReference varReference = (VariableReference) currentContainer.pop();
+        currentContainer.peek().addChild(varReference); // Link to parent
+    }
+
+    // Variable Assignment
+    @Override
+    public void enterVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
+        System.out.println(ctx.getText());
+        VariableAssignment varAssignment = new VariableAssignment();
+        currentContainer.push(varAssignment); // Push VariableAssignment to stack
+    }
+
+    @Override
+    public void exitVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
+        System.out.println(ctx.getText());
+        VariableAssignment varAssignment = (VariableAssignment) currentContainer.pop();
+        currentContainer.peek().addChild(varAssignment); // Link to parent
+    }
+
+    // Selectors handling
+    @Override
+    public void enterIdSelector(ICSSParser.IdSelectorContext ctx) {
+        IdSelector idSelector = new IdSelector(ctx.getText());
+        currentContainer.push(idSelector); // Push IdSelector to stack
+    }
+
+    @Override
+    public void exitIdSelector(ICSSParser.IdSelectorContext ctx) {
+        IdSelector idSelector = (IdSelector) currentContainer.pop();
+        currentContainer.peek().addChild(idSelector); // Link to parent
+    }
+
+    @Override
+    public void enterClassSelector(ICSSParser.ClassSelectorContext ctx) {
+        ClassSelector classSelector = new ClassSelector(ctx.getText());
+        currentContainer.push(classSelector); // Push ClassSelector to stack
+    }
+
+    @Override
+    public void exitClassSelector(ICSSParser.ClassSelectorContext ctx) {
+        ClassSelector classSelector = (ClassSelector) currentContainer.pop();
+        currentContainer.peek().addChild(classSelector); // Link to parent
+    }
+
+    @Override
+    public void enterTagSelector(ICSSParser.TagSelectorContext ctx) {
+        TagSelector tagSelector = new TagSelector(ctx.getText());
+        currentContainer.push(tagSelector); // Push TagSelector to stack
+    }
+
+    @Override
+    public void exitTagSelector(ICSSParser.TagSelectorContext ctx) {
+        TagSelector tagSelector = (TagSelector) currentContainer.pop();
+        currentContainer.peek().addChild(tagSelector); // Link to parent
+    }
+
+    // Handle If-Else construct (opt and then)
     @Override
     public void enterOpt(ICSSParser.OptContext ctx) {
         IfClause opt = new IfClause();
-        currentContainer.push(opt);
+        currentContainer.push(opt); // Push Conditional node to stack
     }
 
     @Override
     public void exitOpt(ICSSParser.OptContext ctx) {
         IfClause opt = (IfClause) currentContainer.pop();
-        currentContainer.peek().addChild(opt);
+        currentContainer.peek().addChild(opt); // Link Conditional node to parent
     }
 
-    //CHECK
-    // Handle Clause
-//    @Override
-//    public void enterClause(ICSSParser.ClauseContext ctx) {
-//        Clause clause = new Clause(ctx.getText());
-//        currentContainer.push(clause);
-//    }
-//
-//    @Override
-//    public void exitClause(ICSSParser.ClauseContext ctx) {
-//        Clause clause = (Clause) currentContainer.pop();
-//        currentContainer.peek().addChild(clause);
-//    }
-
-    // Handle Then
     @Override
     public void enterThen(ICSSParser.ThenContext ctx) {
-        ElseClause then = new ElseClause();
-        currentContainer.push(then);
+        ElseClause elseClause = new ElseClause();
+        currentContainer.push(elseClause); // Push ElseCondition node to stack
     }
 
     @Override
     public void exitThen(ICSSParser.ThenContext ctx) {
-        ElseClause then = (ElseClause) currentContainer.pop();
-        currentContainer.peek().addChild(then);
+        ElseClause elseClause = (ElseClause) currentContainer.pop();
+        currentContainer.peek().addChild(elseClause); // Link ElseCondition to parent
     }
 
 
