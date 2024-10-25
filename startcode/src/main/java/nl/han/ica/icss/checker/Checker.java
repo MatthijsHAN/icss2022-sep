@@ -41,55 +41,42 @@ public class Checker {
 
     //Variable checking
     private void checkVariableAssignment(VariableAssignment node) {
-        variableTypes.getFirst().put(node.name.name, ExpressionType.UNDEFINED);
-        checkExpression(node.expression, node.name.name);
-
+        ExpressionType expressionType = checkExpression(node.expression);
+        variableTypes.getFirst().put(node.name.name, expressionType);
     }
 
-    //Need to check for multiply
-    //
-//    private void checkExpression(Expression expression, String name) {
-//        if(expression instanceof Operation) {
-//            Expression leftExpression = ((Operation) expression).lhs;
-//            Expression rightExpression = ((Operation) expression).rhs;
-//            if((expression instanceof MultiplyOperation || expression instanceof DivisionOperation) && !isScalar(leftExpression) && !isScalar(rightExpression)) {
-//                expression.setError("Expressions that " + expression.getNodeLabel() + " need a scaler.");
-//            }
-//            checkExpression(leftExpression, name);
-//            checkExpression(rightExpression, name);
-//        } else {
-//            ExpressionType currentVariableType = variableTypes.getFirst().get(name);
-//            ExpressionType expressionType = ((Literal) expression).getExpressionType();
-//            if(currentVariableType != ExpressionType.UNDEFINED) {
-//                if (isColorOrBool(currentVariableType) || isColorOrBool(expressionType)) {
-//                    expression.setError(expression.getNodeLabel() + " is a invalid type in this expression.");
-//                } else if(currentVariableType != expressionType) {
-//                    if(currentVariableType == ExpressionType.SCALAR) {
-//                        variableTypes.getFirst().replace(name, expressionType);
-//                    } else if(expressionType != ExpressionType.SCALAR) {
-//                        expression.setError(expression.getNodeLabel() + " is a invalid type in this expression.");
-//                    }
-//                }
-//            } else {
-//                variableTypes.getFirst().replace(name, expressionType);
-//            }
-//        }
-//    }
+    private ExpressionType checkVariableType(VariableReference node) {
+        return variableTypes.getFirst().get(node.name);
+    }
 
-    private void checkExpression(Expression expression, String name) {
+    private ExpressionType checkExpression(Expression expression) {
+        ExpressionType variableType;
+
         if(expression instanceof Operation) {
-            Expression leftExpression = ((Operation) expression).lhs;
-            Expression rightExpression = ((Operation) expression).rhs;
-            if((expression instanceof MultiplyOperation || expression instanceof DivisionOperation) && !isScalar(leftExpression) && !isScalar(rightExpression)) {
+            ExpressionType leftExpressionType = checkExpression(((Operation) expression).lhs);
+            ExpressionType rightExpressionType = checkExpression(((Operation) expression).rhs);
+            if(isColorOrBool(leftExpressionType) || isColorOrBool(rightExpressionType)) {
+                expression.setError("Type color or bool can't be used within a operation!");
+            } else if ((expression instanceof MultiplyOperation || expression instanceof DivisionOperation)
+                        && !(leftExpressionType == ExpressionType.SCALAR)
+                        && !(rightExpressionType == ExpressionType.SCALAR)) {
                 expression.setError("Expressions that " + expression.getNodeLabel() + " need a scaler.");
             }
-            checkExpression(leftExpression, name);
-            checkExpression(rightExpression, name);
+            if(leftExpressionType != rightExpressionType) {
+                variableType = leftExpressionType;
+                if(leftExpressionType == ExpressionType.SCALAR) {
+                    variableType = rightExpressionType;
+                } else if(rightExpressionType != ExpressionType.SCALAR) {
+                    expression.setError("Type pixel and percentage can't be used within the same operation!");
+                }
+            } else {
+                variableType = leftExpressionType;
+            }
+
         } else {
-            ExpressionType currentVariableType = variableTypes.getFirst().get(name);
-            ExpressionType expressionType = ((Literal) expression).getExpressionType();
-            variableTypes.getFirst().replace(name, expressionType);
+            variableType = ((Literal) expression).getExpressionType();
         }
+        return variableType;
     }
 
     public boolean isColorOrBool(ExpressionType type) {
@@ -110,12 +97,18 @@ public class Checker {
     }
 
     private void checkDeclaration(Declaration node) {
+        ExpressionType expression;
+        if(node.expression instanceof VariableReference) {
+            expression = checkVariableType((VariableReference) node.expression);
+        } else {
+            expression = ((Literal) node.expression).getExpressionType();
+        }
         if(node.property.name.equals("width") || node.property.name.equals("height")) {
-            if(!(node.expression instanceof PixelLiteral || node.expression instanceof PercentageLiteral)) {
+            if(!(expression == ExpressionType.PIXEL || expression == ExpressionType.PERCENTAGE)) {
                 node.expression.setError("Property " + node.property.name + " has a invalid type!");
             }
         } else if (node.property.name.equals("color")||node.property.name.equals("background-color")) {
-            if(!(node.expression instanceof ColorLiteral)) {
+            if(!(expression == ExpressionType.COLOR)) {
                 node.expression.setError("Property " + node.property.name + " has a invalid type!");
             }
         }
