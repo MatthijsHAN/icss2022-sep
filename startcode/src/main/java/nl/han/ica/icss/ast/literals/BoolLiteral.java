@@ -1,6 +1,8 @@
 package nl.han.ica.icss.ast.literals;
 
 import nl.han.ica.icss.ast.Literal;
+import nl.han.ica.icss.ast.types.ExpressionType;
+
 import java.util.Objects;
 
 public class BoolLiteral extends Literal {
@@ -12,6 +14,12 @@ public class BoolLiteral extends Literal {
     public BoolLiteral(String text) {
         this.value = text.equals("TRUE");
     }
+
+    @Override
+    public ExpressionType getExpressionType() {
+        return ExpressionType.BOOL;
+    }
+
     @Override
     public String getNodeLabel() {
         String textValue = value ? "TRUE" : "FALSE";
