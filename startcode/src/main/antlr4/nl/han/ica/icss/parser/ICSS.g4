@@ -69,7 +69,9 @@ propertyName: 'background-color'
             | 'height';
 
 //If-Else
-opt: IF BOX_BRACKET_OPEN expression (EQUALS expression)? BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
+opt: IF BOX_BRACKET_OPEN (expression|boolExpression) BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
+
+boolExpression: expression EQUALS expression;
 
 then: ELSE OPEN_BRACE stylerulebody* CLOSE_BRACE;
 

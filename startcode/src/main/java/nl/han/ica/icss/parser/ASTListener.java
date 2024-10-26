@@ -179,6 +179,18 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
+    public void enterBoolExpression(ICSSParser.BoolExpressionContext ctx) {
+        BoolExpression boolExpression = new BoolExpression(); // Create BoolLiteral node
+        currentContainer.push(boolExpression); // Push to stack
+    }
+
+    @Override
+    public void exitBoolExpression(ICSSParser.BoolExpressionContext ctx) {
+        BoolExpression boolExpression = (BoolExpression) currentContainer.pop();
+        currentContainer.peek().addChild(boolExpression); // Link to parent
+    }
+
+    @Override
     public void enterVariableReference(ICSSParser.VariableReferenceContext ctx) {
         VariableReference varReference = new VariableReference(ctx.getText()); // Create VariableReference node
         currentContainer.push(varReference); // Push to stack
