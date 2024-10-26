@@ -13,7 +13,7 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 
 import java.util.HashMap;
 
-
+//need to make different  levels for the linked list and a way to check every level
 
 public class Checker {
 
