@@ -70,7 +70,7 @@ public class Checker {
             } else if((expression instanceof MultiplyOperation || expression instanceof DivisionOperation)
                         && !(leftExpressionType == ExpressionType.SCALAR)
                         && !(rightExpressionType == ExpressionType.SCALAR)) {
-                expression.setError("Expressions that " + expression.getNodeLabel() + " need a scaler.");
+                expression.setError("Expressions that " + expression.getNodeLabel() + " need a scaler!");
             }
             if(leftExpressionType != rightExpressionType) {
                 variableType = leftExpressionType;

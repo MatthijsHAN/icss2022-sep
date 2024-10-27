@@ -4,7 +4,8 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 
 public abstract class Literal extends Expression {
 
-    public ExpressionType getExpressionType() {
-        return null;
-    }
+
+    public abstract Object getValue();
+
+    public abstract ExpressionType getExpressionType();
 }

@@ -16,6 +16,11 @@ public class BoolLiteral extends Literal {
     }
 
     @Override
+    public Boolean getValue() {
+        return value;
+    }
+
+    @Override
     public ExpressionType getExpressionType() {
         return ExpressionType.BOOL;
     }
