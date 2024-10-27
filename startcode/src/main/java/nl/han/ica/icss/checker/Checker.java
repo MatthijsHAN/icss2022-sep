@@ -2,18 +2,12 @@ package nl.han.ica.icss.checker;
 
 import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.datastructures.IHANLinkedList;
-import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
-import nl.han.ica.icss.ast.literals.*;
-import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.DivisionOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
 import java.util.HashMap;
-
-//need to make different  levels for the linked list and a way to check every level
 
 public class Checker {
 
@@ -34,8 +28,6 @@ public class Checker {
                 checkVariableAssignment((VariableAssignment) child);
             } else if (child instanceof Stylerule) {
                 checkStylerule((Stylerule) child);
-            } else if (child instanceof IfClause) {
-                checkIfClause((IfClause) child);
             }
         }
         variableTypes.removeFirst();
@@ -94,8 +86,8 @@ public class Checker {
     }
 
     private ExpressionType checkBoolExpression(BoolExpression boolExpression) {
-        ExpressionType leftExpressionType = checkExpression(((BoolExpression) boolExpression).left);
-        ExpressionType rightExpressionType = checkExpression(((BoolExpression) boolExpression).right);
+        checkExpression(boolExpression.left);
+        checkExpression(boolExpression.right);
         return boolExpression.getExpressionType();
     }
 
@@ -105,19 +97,7 @@ public class Checker {
 
     //Stylerule checking
     private void checkStylerule(Stylerule node) {
-        HashMap<String, ExpressionType> map = new HashMap<>();
-        variableTypes.addFirst(map);
-
-        for(ASTNode child : node.getChildren()) {
-            if(child instanceof VariableAssignment) {
-                checkVariableAssignment((VariableAssignment) child);
-            } else if(child instanceof Declaration){
-                checkDeclaration((Declaration) child);
-            } else if (child instanceof IfClause) {
-                checkIfClause((IfClause) child);
-            }
-        }
-        variableTypes.removeFirst();
+        checkScopedBlock(node);
     }
 
     private void checkDeclaration(Declaration node) {
@@ -146,19 +126,7 @@ public class Checker {
     private void checkIfClause(IfClause node) {
         checkConditionalExpression(node.conditionalExpression);
 
-        HashMap<String, ExpressionType> map = new HashMap<>();
-        variableTypes.addFirst(map);
-
-        for(ASTNode child : node.getChildren()) {
-            if(child instanceof VariableAssignment) {
-                checkVariableAssignment((VariableAssignment) child);
-            } else if(child instanceof Declaration){
-                checkDeclaration((Declaration) child);
-            } else if (child instanceof IfClause) {
-                checkIfClause((IfClause) child);
-            }
-        }
-        variableTypes.removeFirst();
+        checkScopedBlock(node);
 
         if(node.elseClause != null) {
             checkElseClause(node.elseClause);
@@ -178,6 +146,10 @@ public class Checker {
     }
 
     private void checkElseClause(ElseClause node) {
+        checkScopedBlock(node);
+    }
+
+    private void checkScopedBlock(ASTNode node) {
         HashMap<String, ExpressionType> map = new HashMap<>();
         variableTypes.addFirst(map);
 
@@ -190,8 +162,6 @@ public class Checker {
                 checkIfClause((IfClause) child);
             }
         }
-
         variableTypes.removeFirst();
     }
-
 }

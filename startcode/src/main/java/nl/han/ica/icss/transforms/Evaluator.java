@@ -26,13 +26,16 @@ public class Evaluator implements Transform {
         applyStylesheet(ast.root);
     }
 
-    private void applyStylesheet(Stylesheet node) {
+    private void applyStylesheet(Stylesheet root) {
         HashMap<String, Literal> map = new HashMap<>();
         variableValues.addFirst(map);
 
-        for(ASTNode child : node.getChildren()) {
-            if(child instanceof VariableAssignment) {
+        for (int i = 0; i < root.getChildren().size(); i++) {
+            ASTNode child = root.getChildren().get(i);
+            if (child instanceof VariableAssignment) {
                 applyVariableAssignment((VariableAssignment) child);
+                root.removeChild(child);
+                i--;
             } else if (child instanceof Stylerule) {
                 applyStylerule((Stylerule) child);
             }
@@ -58,26 +61,27 @@ public class Evaluator implements Transform {
     }
 
     private void applyStylerule(Stylerule node) {
-        HashMap<String, Literal> map = new HashMap<>();
-        variableValues.addFirst(map);
+        applyScopedBlock(node);
+    }
 
-        for(ASTNode child : node.getChildren()) {
-            if(child instanceof VariableAssignment) {
-                applyVariableAssignment((VariableAssignment) child);
-                node.removeChild(child);
-            } else if(child instanceof Declaration){
-                applyDeclaration((Declaration) child);
-            } else if (child instanceof IfClause) {
-                ArrayList<ASTNode> ifElseClauseBody = applyIfClause((IfClause) child);
-                if(ifElseClauseBody != null) {
-                    for(ASTNode ifElseClauseChild : ifElseClauseBody) {
-                        node.addChild(ifElseClauseChild);
-                    }
-                }
-                node.removeChild(child);
-            }
+    private ArrayList<ASTNode> applyIfClause(IfClause node) {
+        applyScopedBlock(node);
+
+        if(applyConditionalExpression(node.conditionalExpression)) {
+            return node.body;
+        } else if (node.elseClause != null) {
+            return node.elseClause.body;
+        } else {
+            return null;
         }
-        variableValues.removeFirst();
+    }
+
+    private boolean applyConditionalExpression(Expression conditionalExpression) {
+        if(conditionalExpression instanceof BoolExpression || conditionalExpression instanceof BoolLiteral || conditionalExpression instanceof VariableReference) {
+            return ((BoolLiteral) evalExpression(conditionalExpression)).value;
+        } else {
+            throw new IllegalStateException("Unexpected content: " + conditionalExpression);
+        }
     }
 
     private void applyDeclaration(Declaration node) {
@@ -143,44 +147,34 @@ public class Evaluator implements Transform {
         }
     }
 
-    private ArrayList<ASTNode> applyIfClause(IfClause node) {
-
+    private void applyScopedBlock(ASTNode node) {
         HashMap<String, Literal> map = new HashMap<>();
         variableValues.addFirst(map);
 
-        for(ASTNode child : node.getChildren()) {
-            if(child instanceof VariableAssignment) {
+        for (int i = 0; i < node.getChildren().size(); i++) {
+            ASTNode child = node.getChildren().get(i);
+
+            if (child instanceof VariableAssignment) {
                 applyVariableAssignment((VariableAssignment) child);
                 node.removeChild(child);
-            } else if(child instanceof Declaration){
+                i--;
+            } else if (child instanceof Declaration) {
                 applyDeclaration((Declaration) child);
             } else if (child instanceof IfClause) {
                 ArrayList<ASTNode> ifElseClauseBody = applyIfClause((IfClause) child);
-                if(ifElseClauseBody != null) {
-                    for(ASTNode ifElseClauseChild : ifElseClauseBody) {
-                        node.addChild(ifElseClauseChild);
-                    }
+                if (ifElseClauseBody != null) {
+                    addAllChildren(node, ifElseClauseBody);
                 }
                 node.removeChild(child);
+                i--;
             }
         }
         variableValues.removeFirst();
-
-        if(applyConditionalExpression(node.conditionalExpression)) {
-            return node.body;
-        } else if (node.elseClause != null) {
-            return node.elseClause.body;
-        } else {
-            return null;
-        }
     }
 
-    private boolean applyConditionalExpression(Expression conditionalExpression) {
-        if(conditionalExpression instanceof BoolExpression || conditionalExpression instanceof BoolLiteral || conditionalExpression instanceof VariableReference) {
-            return ((BoolLiteral) evalExpression(conditionalExpression)).value;
-        } else {
-            throw new IllegalStateException("Unexpected content: " + conditionalExpression);
+    private void addAllChildren(ASTNode parent, ArrayList<ASTNode> children) {
+        for (ASTNode child : children) {
+            parent.addChild(child);
         }
     }
-
 }

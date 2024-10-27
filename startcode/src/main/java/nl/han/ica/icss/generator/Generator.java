@@ -1,31 +1,41 @@
 package nl.han.ica.icss.generator;
 
 
-import nl.han.ica.icss.ast.AST;
-import nl.han.ica.icss.ast.ASTNode;
-import nl.han.ica.icss.ast.Stylerule;
-import nl.han.ica.icss.ast.Stylesheet;
+import nl.han.ica.icss.ast.*;
 
 public class Generator {
 
 	public String generate(AST ast) {
-        return generateStylesheet(ast.root);
+        return generateStylesheet(ast.root).toString();
 	}
 
-    private String generateStylesheet(Stylesheet root) {
-        return generateStylerule((Stylerule) root.getChildren().get(0));
+    private StringBuilder generateStylesheet(Stylesheet root) {
+        StringBuilder stylesheetString = new StringBuilder();
+        for(ASTNode child : root.getChildren()) {
+            if (child instanceof Stylerule) {
+                stylesheetString.append(generateStylerule((Stylerule) child));
+            }
+        }
+        return stylesheetString;
     }
 
-    private String generateStylerule(Stylerule stylerule) {
-        String result = stylerule.selectors.get(0) + " {\n";
-        //niet alleen eerste van body pakken.
-        result += "\t" + generateDeclaration(stylerule.body.get(0));
-        result += "}";
-        return result;
+    private StringBuilder generateStylerule(Stylerule node) {
+        StringBuilder styleRuleString = new StringBuilder();
+        styleRuleString.append(node.selectors.get(0)).append(" {");
+
+        for(ASTNode child : node.getChildren()) {
+            if(child instanceof Declaration){
+                styleRuleString.append("\n\t").append(generateDeclaration((Declaration) child));
+            }
+        }
+        styleRuleString.append("\n}\n\n");
+        return styleRuleString;
     }
 
-    private String generateDeclaration(ASTNode astNode) {
-        return "temp";
+    private StringBuilder generateDeclaration(Declaration node) {
+        StringBuilder declarationString = new StringBuilder();
+        declarationString.append(node.property.name).append(": ").append(((Literal) node.expression).getTextValue()).append(";");
+        return declarationString;
     }
 
 

@@ -21,14 +21,18 @@ public class BoolLiteral extends Literal {
     }
 
     @Override
+    public String getTextValue() {
+        return value ? "TRUE" : "FALSE";
+    }
+
+    @Override
     public ExpressionType getExpressionType() {
         return ExpressionType.BOOL;
     }
 
     @Override
     public String getNodeLabel() {
-        String textValue = value ? "TRUE" : "FALSE";
-        return "Bool Literal (" + textValue + ")";
+        return "Bool Literal (" + getTextValue() + ")";
     }
 
     @Override

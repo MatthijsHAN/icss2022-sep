@@ -23,6 +23,11 @@ public class ColorLiteral extends Literal {
     }
 
     @Override
+    public String getTextValue() {
+        return value;
+    }
+
+    @Override
     public String getNodeLabel() {
         return "Color literal (" + value + ")";
     }

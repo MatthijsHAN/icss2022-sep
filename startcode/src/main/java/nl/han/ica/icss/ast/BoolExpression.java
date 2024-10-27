@@ -9,7 +9,6 @@ public class BoolExpression extends Expression {
     public Expression left;
     public Expression right;
 
-    // Constructor accepts left and right expressions and an operator
     public BoolExpression() {
     }
 

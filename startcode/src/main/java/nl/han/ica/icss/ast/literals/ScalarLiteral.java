@@ -21,6 +21,11 @@ public class ScalarLiteral extends Literal {
     }
 
     @Override
+    public String getTextValue() {
+        return value + "";
+    }
+
+    @Override
     public ExpressionType getExpressionType() {
         return ExpressionType.SCALAR;
     }
