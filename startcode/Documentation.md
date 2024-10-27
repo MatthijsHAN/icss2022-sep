@@ -10,3 +10,4 @@ Vragen aan docent:
 4. Moet de volgorde van declaraties behouden worden?/telt het negatief mee als dit niet gebeurt?
 5. Kan ik het ook zo maken dat er een if in het stylesheet direct kan met dus mogelijk stylerules en variabelen? In de documentatie staat dat dit niet kan.
 
+Moet nog meer soorten boolexpressies toevoegen
