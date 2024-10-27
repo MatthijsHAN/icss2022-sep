@@ -48,7 +48,15 @@ public class Checker {
     }
 
     private ExpressionType checkVariableType(VariableReference node) {
-        return variableTypes.getFirst().get(node.name);
+        ExpressionType variableType = null;
+        for(int i = 0; i < variableTypes.getSize(); i++) {
+            if(variableType == null) {
+                variableType = variableTypes.get(i).get(node.name);
+            } else if (variableType != null) {
+                break;
+            }
+        }
+        return variableType;
     }
 
     private ExpressionType checkExpression(Expression expression) {
@@ -97,6 +105,9 @@ public class Checker {
 
     //Stylerule checking
     private void checkStylerule(Stylerule node) {
+        HashMap<String, ExpressionType> map = new HashMap<>();
+        variableTypes.addFirst(map);
+
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
@@ -106,6 +117,7 @@ public class Checker {
                 checkIfClause((IfClause) child);
             }
         }
+        variableTypes.removeFirst();
     }
 
     private void checkDeclaration(Declaration node) {
@@ -134,6 +146,9 @@ public class Checker {
     private void checkIfClause(IfClause node) {
         checkConditionalExpression(node.conditionalExpression);
 
+        HashMap<String, ExpressionType> map = new HashMap<>();
+        variableTypes.addFirst(map);
+
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
@@ -141,13 +156,19 @@ public class Checker {
                 checkDeclaration((Declaration) child);
             } else if (child instanceof IfClause) {
                 checkIfClause((IfClause) child);
-            } else if (child instanceof ElseClause) {
-                checkElseClause((ElseClause) child);
             }
+        }
+        variableTypes.removeFirst();
+
+        if(node.elseClause != null) {
+            checkElseClause(node.elseClause);
         }
     }
 
     private void checkConditionalExpression(Expression conditionalExpression) {
+        HashMap<String, ExpressionType> map = new HashMap<>();
+        variableTypes.addFirst(map);
+
         ExpressionType expressionType;
         if(conditionalExpression instanceof BoolExpression) {
             expressionType = checkBoolExpression((BoolExpression) conditionalExpression);
@@ -157,6 +178,8 @@ public class Checker {
         if(expressionType != ExpressionType.BOOL) {
             conditionalExpression.setError("If-block uses a non boolean for conditional expression!");
         }
+
+        variableTypes.removeFirst();
     }
 
     private void checkElseClause(ElseClause node) {

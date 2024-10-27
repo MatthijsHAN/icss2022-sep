@@ -1,14 +1,16 @@
 LinkColor := #ff0000;
 Number := 10;
 ParWidth := 200px-3*((Number+-4)/5);
-AdjustColor := TRUE;
-UseLinkColor := FALSE;
+AdjustColor := FALSE;
+UseLinkColor := 5;
 
 p {
 	background-color: #ffffff;
 	width: ParWidth;
+	AdjustColor := TRUE;
 	if[AdjustColor] {
 	    color: #124532;
+	    UseLinkColor := FALSE;
 	    if[UseLinkColor] {
 	        background-color: LinkColor;
 	        if[Number == (30-25)*2] {
@@ -23,7 +25,9 @@ p {
 	height: 20px;
 }
 a {
-	color: LinkColor;
+	if[TRUE] {
+        color: LinkColor;
+    }
 }
 
 #menu {
