@@ -9,11 +9,10 @@ import nl.han.ica.icss.ast.Stylesheet;
 public class Generator {
 
 	public String generate(AST ast) {
-        return generateStylesheet((Stylesheet) ast.root);
+        return generateStylesheet(ast.root);
 	}
 
     private String generateStylesheet(Stylesheet root) {
-        //later niet alleen eerste kind pakken.
         return generateStylerule((Stylerule) root.getChildren().get(0));
     }
 

@@ -38,7 +38,7 @@ public class Checker {
                 checkIfClause((IfClause) child);
             }
         }
-
+        variableTypes.removeFirst();
     }
 
     //Variable checking
@@ -166,9 +166,6 @@ public class Checker {
     }
 
     private void checkConditionalExpression(Expression conditionalExpression) {
-        HashMap<String, ExpressionType> map = new HashMap<>();
-        variableTypes.addFirst(map);
-
         ExpressionType expressionType;
         if(conditionalExpression instanceof BoolExpression) {
             expressionType = checkBoolExpression((BoolExpression) conditionalExpression);
@@ -178,11 +175,12 @@ public class Checker {
         if(expressionType != ExpressionType.BOOL) {
             conditionalExpression.setError("If-block uses a non boolean for conditional expression!");
         }
-
-        variableTypes.removeFirst();
     }
 
     private void checkElseClause(ElseClause node) {
+        HashMap<String, ExpressionType> map = new HashMap<>();
+        variableTypes.addFirst(map);
+
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
@@ -192,6 +190,8 @@ public class Checker {
                 checkIfClause((IfClause) child);
             }
         }
+
+        variableTypes.removeFirst();
     }
 
 }

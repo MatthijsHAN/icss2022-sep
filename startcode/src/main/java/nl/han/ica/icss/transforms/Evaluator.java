@@ -3,32 +3,33 @@ package nl.han.ica.icss.transforms;
 import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
+import nl.han.ica.icss.ast.literals.BoolLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
-import nl.han.ica.icss.ast.operations.AddOperation;
-import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class Evaluator implements Transform {
 
     private IHANLinkedList<HashMap<String, Literal>> variableValues;
 
     public Evaluator() {
-        variableValues = new HANLinkedList<>();
+
     }
 
     @Override
     public void apply(AST ast) {
         variableValues = new HANLinkedList<>();
-        applyStylesheet((Stylesheet) ast.root);
+        applyStylesheet(ast.root);
     }
 
     private void applyStylesheet(Stylesheet node) {
+        HashMap<String, Literal> map = new HashMap<>();
+        variableValues.addFirst(map);
+
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
                 applyVariableAssignment((VariableAssignment) child);
@@ -36,20 +37,47 @@ public class Evaluator implements Transform {
                 applyStylerule((Stylerule) child);
             }
         }
+        variableValues.removeFirst();
     }
 
     private void applyVariableAssignment(VariableAssignment node) {
         node.expression = evalExpression(node.expression);
+        variableValues.getFirst().put(node.name.name, (Literal) node.expression);
+    }
+
+    private Expression applyVariableReference(VariableReference node) {
+        Expression variableValue = null;
+        for(int i = 0; i < variableValues.getSize(); i++) {
+            if(variableValue == null) {
+                variableValue = variableValues.get(i).get(node.name);
+            } else if (variableValue != null) {
+                break;
+            }
+        }
+        return variableValue;
     }
 
     private void applyStylerule(Stylerule node) {
+        HashMap<String, Literal> map = new HashMap<>();
+        variableValues.addFirst(map);
+
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
                 applyVariableAssignment((VariableAssignment) child);
+                node.removeChild(child);
             } else if(child instanceof Declaration){
                 applyDeclaration((Declaration) child);
+            } else if (child instanceof IfClause) {
+                ArrayList<ASTNode> ifElseClauseBody = applyIfClause((IfClause) child);
+                if(ifElseClauseBody != null) {
+                    for(ASTNode ifElseClauseChild : ifElseClauseBody) {
+                        node.addChild(ifElseClauseChild);
+                    }
+                }
+                node.removeChild(child);
             }
         }
+        variableValues.removeFirst();
     }
 
     private void applyDeclaration(Declaration node) {
@@ -60,7 +88,6 @@ public class Evaluator implements Transform {
         if(expression instanceof Operation) {
             Expression newLeftExpression = evalExpression(((Operation) expression).lhs);
             Expression newRightExpression = evalExpression(((Operation) expression).rhs);
-            System.out.println("Left: " + newLeftExpression + " Right: " + newRightExpression);
             if(checkLiteralTypeIsInt(newLeftExpression) && checkLiteralTypeIsInt(newRightExpression)) {
                 ExpressionType newExpressionType = checkExpressionType(((Literal) newLeftExpression).getExpressionType(), ((Literal) newRightExpression).getExpressionType());
                 int newExpressionValue;
@@ -95,8 +122,11 @@ public class Evaluator implements Transform {
             } else {
                 throw new IllegalStateException("Unexpected expression type in operation!");
             }
+        } else if (expression instanceof BoolExpression) {
+            return new BoolLiteral(evalExpression(((BoolExpression) expression).left).equals(evalExpression(((BoolExpression) expression).right)));
+        } else if (expression instanceof VariableReference) {
+            return applyVariableReference((VariableReference) expression);
         } else {
-            System.out.println("Returned: " + expression.getNodeLabel());
             return expression;
         }
     }
@@ -113,5 +143,44 @@ public class Evaluator implements Transform {
         }
     }
 
+    private ArrayList<ASTNode> applyIfClause(IfClause node) {
+
+        HashMap<String, Literal> map = new HashMap<>();
+        variableValues.addFirst(map);
+
+        for(ASTNode child : node.getChildren()) {
+            if(child instanceof VariableAssignment) {
+                applyVariableAssignment((VariableAssignment) child);
+                node.removeChild(child);
+            } else if(child instanceof Declaration){
+                applyDeclaration((Declaration) child);
+            } else if (child instanceof IfClause) {
+                ArrayList<ASTNode> ifElseClauseBody = applyIfClause((IfClause) child);
+                if(ifElseClauseBody != null) {
+                    for(ASTNode ifElseClauseChild : ifElseClauseBody) {
+                        node.addChild(ifElseClauseChild);
+                    }
+                }
+                node.removeChild(child);
+            }
+        }
+        variableValues.removeFirst();
+
+        if(applyConditionalExpression(node.conditionalExpression)) {
+            return node.body;
+        } else if (node.elseClause != null) {
+            return node.elseClause.body;
+        } else {
+            return null;
+        }
+    }
+
+    private boolean applyConditionalExpression(Expression conditionalExpression) {
+        if(conditionalExpression instanceof BoolExpression || conditionalExpression instanceof BoolLiteral || conditionalExpression instanceof VariableReference) {
+            return ((BoolLiteral) evalExpression(conditionalExpression)).value;
+        } else {
+            throw new IllegalStateException("Unexpected content: " + conditionalExpression);
+        }
+    }
 
 }

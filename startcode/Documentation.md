@@ -5,4 +5,5 @@ kijken naar waar errors gezet worden. Miss veranderen voor kleuren en bool ander
 
 Vragen aan docent:
 1. Moet ik dingen nog extra checken in de transformator, door throws?
-2. 
+2. Moeten we rekening houden met het afkappen van waardes doordat het int's worden tijdens berekeningen? (Door eigen toevoeging delen)
+

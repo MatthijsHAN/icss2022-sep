@@ -25,6 +25,12 @@ public class IfClause extends ASTNode {
     }
 
     @Override
+    public ASTNode removeChild(ASTNode child) {
+        body.remove(child);
+        return this;
+    }
+
+    @Override
     public String getNodeLabel() {
         return "If_Clause";
     }
