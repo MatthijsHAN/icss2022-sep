@@ -106,18 +106,6 @@ public class ASTListener extends ICSSBaseListener {
         currentContainer.peek().addChild(functionCall);
     }
 
-    @Override
-    public void enterFunctionParameter(ICSSParser.FunctionParameterContext ctx) {
-        FunctionParameter functionParameter = new FunctionParameter(ctx.getText());
-        currentContainer.push(functionParameter);
-    }
-
-    @Override
-    public void exitFunctionParameter(ICSSParser.FunctionParameterContext ctx) {
-        FunctionParameter functionParameter = (FunctionParameter) currentContainer.pop();
-        currentContainer.peek().addChild(functionParameter);
-    }
-
     // Handle mixins
     @Override
     public void enterMixin(ICSSParser.MixinContext ctx) {

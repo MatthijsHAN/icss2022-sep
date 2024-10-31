@@ -124,10 +124,8 @@ mixinName: CAPITAL_IDENT;
 mixinCall: AT mixinName SEMICOLON;
 
 //Functions
-function: 'function' functionName BOX_BRACKET_OPEN (functionParameter(','functionParameter)*)? BOX_BRACKET_CLOSE OPEN_BRACE expression? CLOSE_BRACE;
+function: 'function' functionName BOX_BRACKET_OPEN (variableName(','variableName)*)? BOX_BRACKET_CLOSE OPEN_BRACE expression? CLOSE_BRACE;
 
 functionName: CAPITAL_IDENT;
-
-functionParameter: AT CAPITAL_IDENT;
 
 functionCall: AT functionName BOX_BRACKET_OPEN (expression(','expression)*)? BOX_BRACKET_CLOSE;

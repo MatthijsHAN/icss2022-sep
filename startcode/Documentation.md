@@ -4,3 +4,4 @@ Het type van de linker tak wordt doorgegeven om de rest van de expressie te chec
 
 kijken naar waar errors gezet worden. Miss veranderen voor kleuren en bool anders even uitleggen.
 Negatieve percentages en pixels fixen!!!
+Fixen niet kunnen onderscheiden tussen functie parameters en de body van de functie (miss expression in de listener zetten?)
