@@ -6,6 +6,11 @@ grammar ICSS;
 IF: 'if';
 ELSE: 'else';
 EQUALS: '==';
+NOT_EQUAL: '!=';
+GREATER_OR_EQUAL: '>=';
+SMALLER_OR_EQUAL: '<=';
+GREATER: '>';
+SMALLER: '<';
 BOX_BRACKET_OPEN: '[';
 BOX_BRACKET_CLOSE: ']';
 
@@ -44,11 +49,12 @@ MIN: '-';
 MUL: '*';
 DIV: '/';
 ASSIGNMENT_OPERATOR: ':=';
+AT: '@';
 
 //--- PARSER: ---
 
-//Miss later ook toestaan dat een style rule in een if gaat en een if in stylesheet?
-stylesheet: (stylerule|variableAssignment)* (stylerule|variableAssignment)* EOF;
+//Stylesheet
+stylesheet: (stylerule|variableAssignment|mixin|function)* EOF;
 
 //Stylerule
 stylerule: selector OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
@@ -59,8 +65,12 @@ selector: ID_IDENT     #idSelector
 
 stylerulebody: declaration
              | variableAssignment
-             | opt;
+             | opt
+             | mixin
+             | mixinCall
+             | function;
 
+//Declaration
 declaration: propertyName COLON expression SEMICOLON;
 
 propertyName: 'background-color'
@@ -71,7 +81,12 @@ propertyName: 'background-color'
 //If-Else
 opt: IF BOX_BRACKET_OPEN (expression|boolExpression) BOX_BRACKET_CLOSE OPEN_BRACE stylerulebody* CLOSE_BRACE then?;
 
-boolExpression: expression EQUALS expression;
+boolExpression: expression EQUALS expression            #equals
+              | expression NOT_EQUAL expression         #notEquals
+              | expression GREATER_OR_EQUAL expression  #greaterOrEquals
+              | expression SMALLER_OR_EQUAL expression  #smallerOrEquals
+              | expression GREATER expression           #greaterThan
+              | expression SMALLER expression           #smallerThan;
 
 then: ELSE OPEN_BRACE stylerulebody* CLOSE_BRACE;
 
@@ -80,7 +95,7 @@ variableAssignment: variableName ASSIGNMENT_OPERATOR expression SEMICOLON;
 
 variableName: CAPITAL_IDENT;
 
-//Calculations
+//Expressions
 expression: expression PLUS term          # additionOperation
           | expression MIN term           # subtractOperation
           | term                          # passToTerm;
@@ -98,6 +113,21 @@ literal: COLOR               #colorLiteral
        | MIN? SCALAR         #scalarLiteral
        | TRUE                #boolLiteral
        | FALSE               #boolLiteral
-       | variableName        #variableReference;
+       | variableName        #variableReference
+       | functionCall        #functionReference;
 
+//Code-blocks/ Mixins
+mixin: 'mixin' mixinName OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
 
+mixinName: CAPITAL_IDENT;
+
+mixinCall: AT mixinName SEMICOLON;
+
+//Functions
+function: 'function' functionName BOX_BRACKET_OPEN (functionParameter(','functionParameter)*)? BOX_BRACKET_CLOSE OPEN_BRACE expression? CLOSE_BRACE;
+
+functionName: CAPITAL_IDENT;
+
+functionParameter: AT CAPITAL_IDENT;
+
+functionCall: AT functionName BOX_BRACKET_OPEN (expression(','expression)*)? BOX_BRACKET_CLOSE;

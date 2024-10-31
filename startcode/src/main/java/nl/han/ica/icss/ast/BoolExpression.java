@@ -5,20 +5,16 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class BoolExpression extends Expression {
+public abstract class BoolExpression extends Expression {
     public Expression left;
     public Expression right;
+    public String Operator;
 
     public BoolExpression() {
     }
 
     public ExpressionType getExpressionType() {
         return ExpressionType.BOOL;
-    }
-
-    @Override
-    public String getNodeLabel() {
-        return "Bool Expression";
     }
 
     @Override

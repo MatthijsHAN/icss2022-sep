@@ -39,3 +39,15 @@ a {
     background-color: LinkColor;
 
 }
+
+function Ho[Hey,Hey3] {
+    5 + 6 - Hey
+}
+
+mixin Hi {
+    width: 5px + @Ho[5,6];
+}
+
+p {
+    @Hi;
+}
