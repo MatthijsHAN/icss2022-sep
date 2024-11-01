@@ -6,12 +6,12 @@ import java.util.Objects;
 public class Function extends ASTNode {
 
     public FunctionReference name;
-    public ArrayList<VariableReference> parameters = new ArrayList<>();
+    public FunctionParameters parameters;
     public Expression body;
 
     public Function() { }
 
-    public Function(FunctionReference name, ArrayList<VariableReference> parameters, Expression body) {
+    public Function(FunctionReference name, FunctionParameters parameters, Expression body) {
         this.name = name;
         this.parameters = parameters;
         this.body = body;
@@ -26,7 +26,7 @@ public class Function extends ASTNode {
     public ArrayList<ASTNode> getChildren() {
         ArrayList<ASTNode> children = new ArrayList<>();
         children.add(name);
-        children.addAll(parameters);
+        children.add(parameters);
         children.add(body);
 
         return children;
@@ -36,9 +36,9 @@ public class Function extends ASTNode {
     public ASTNode addChild(ASTNode child) {
         if(name == null) {
             name = (FunctionReference) child;
-        } else if (child instanceof VariableReference) {
-            parameters.add((VariableReference) child);
-        } else if(body == null) {
+        } else if (child instanceof FunctionParameters) {
+            parameters = (FunctionParameters) child;
+        } else if (child instanceof Expression) {
             body = (Expression) child;
         }
 

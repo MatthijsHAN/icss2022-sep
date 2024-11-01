@@ -95,6 +95,18 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
+    public void enterFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
+        FunctionParameters functionParameters = new FunctionParameters();
+        currentContainer.push(functionParameters);
+    }
+
+    @Override
+    public void exitFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
+        FunctionParameters functionParameters = (FunctionParameters) currentContainer.pop();
+        currentContainer.peek().addChild(functionParameters);
+    }
+
+    @Override
     public void enterFunctionCall(ICSSParser.FunctionCallContext ctx) {
         FunctionCall functionCall = new FunctionCall();
         currentContainer.push(functionCall);
