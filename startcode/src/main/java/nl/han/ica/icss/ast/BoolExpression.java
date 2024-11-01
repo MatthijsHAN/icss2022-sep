@@ -8,11 +8,11 @@ import java.util.Objects;
 public abstract class BoolExpression extends Expression {
     public Expression left;
     public Expression right;
-    public String Operator;
 
     public BoolExpression() {
     }
 
+    public abstract boolean compareExpressions();
     public ExpressionType getExpressionType() {
         return ExpressionType.BOOL;
     }

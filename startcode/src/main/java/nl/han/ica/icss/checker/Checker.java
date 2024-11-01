@@ -3,25 +3,42 @@ package nl.han.ica.icss.checker;
 import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
+import nl.han.ica.icss.ast.boolExpressions.Equals;
+import nl.han.ica.icss.ast.boolExpressions.NotEquals;
 import nl.han.ica.icss.ast.operations.DivisionOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Checker {
 
     private IHANLinkedList<HashMap<String, ExpressionType>> variableTypes;
+//    private IHANLinkedList<ArrayList<String>> mixins;
+//    private ArrayList<String> nestedMixins;
     
     public void check(AST ast) {
         variableTypes = new HANLinkedList<>();
+//        mixins = new HANLinkedList<>();
         checkStylesheet(ast.root);
     }
 
-    //Stylesheet checking
+    private void enterNewScope() {
+        HashMap<String, ExpressionType> variableMap = new HashMap<>();
+        variableTypes.addFirst(variableMap);
+//        ArrayList<String> mixinArrayList = new ArrayList<>();
+//        mixins.addFirst(mixinArrayList);
+    }
+
+    private void exitScope() {
+        variableTypes.removeFirst();
+//        mixins.removeFirst();
+    }
+
+    // Stylesheet checking
     private void checkStylesheet(Stylesheet node) {
-        HashMap<String, ExpressionType> map = new HashMap<>();
-        variableTypes.addFirst(map);
+        enterNewScope();
 
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
@@ -29,11 +46,16 @@ public class Checker {
             } else if (child instanceof Stylerule) {
                 checkStylerule((Stylerule) child);
             }
+//            else if (child instanceof Function) {
+//                checkFunction((Function) child);
+//            } else if (child instanceof Mixin) {
+//                checkMixin((Mixin) child);
+//            }
         }
-        variableTypes.removeFirst();
+        exitScope();
     }
 
-    //Variable checking
+    // Variable checking
     private void checkVariableAssignment(VariableAssignment node) {
         ExpressionType expressionType = checkExpression(node.expression);
         variableTypes.getFirst().put(node.name.name, expressionType);
@@ -51,6 +73,7 @@ public class Checker {
         return variableType;
     }
 
+    // Expression checking
     private ExpressionType checkExpression(Expression expression) {
         ExpressionType variableType;
 
@@ -86,20 +109,25 @@ public class Checker {
     }
 
     private ExpressionType checkBoolExpression(BoolExpression boolExpression) {
-        checkExpression(boolExpression.left);
-        checkExpression(boolExpression.right);
+        ExpressionType leftExpressionType = checkExpression(boolExpression.left);
+        ExpressionType rightExpressionType = checkExpression(boolExpression.right);
+
+        if(!(boolExpression instanceof Equals || boolExpression instanceof NotEquals)) {
+            if(isColorOrBool(leftExpressionType) || isColorOrBool(rightExpressionType)) {
+                boolExpression.setError("When comparing something with a boolean or color only the operators '==' or '!=' may be used!");
+            } else if (leftExpressionType != rightExpressionType) {
+                boolExpression.setError("When comparing literals using the operators '<=', '>=', '<' or '>' the literals need to be of the same type!");
+            }
+        }
         return boolExpression.getExpressionType();
     }
 
-    private boolean isColorOrBool(ExpressionType type) {
-        return type == ExpressionType.COLOR || type == ExpressionType.BOOL;
-    }
-
-    //Stylerule checking
+    // Stylerule checking
     private void checkStylerule(Stylerule node) {
         checkScopedBlock(node);
     }
 
+    // Declaration checking
     private void checkDeclaration(Declaration node) {
         ExpressionType expressionType;
         if(node.expression instanceof VariableReference) {
@@ -122,7 +150,7 @@ public class Checker {
         }
     }
 
-    //IF/ELSE Checking
+    // If/Else Checking
     private void checkIfClause(IfClause node) {
         checkConditionalExpression(node.conditionalExpression);
 
@@ -148,10 +176,41 @@ public class Checker {
     private void checkElseClause(ElseClause node) {
         checkScopedBlock(node);
     }
+    
+    // Mixin checking
+//    private void checkMixin(Mixin node) {
+//
+//        for(int i = 0; i < nestedMixins.size(); i++) {
+//            if(nestedMixins.get(i).equals(node.name.name)) {
+//                node.setError("");
+//            }
+//        }
+//        nestedMixins.add(node.name.name);
+//        checkScopedBlock(node);
+//    }
+//
+//    // Function checking
+//    private void checkFunction(Function node) {
+//
+//        for(ASTNode child : node.getChildren()) {
+//            if(child instanceof FunctionParameters) {
+//                checkFunctionParameters((FunctionParameters) child);
+//            } else if(child instanceof Expression){
+//                checkExpression((Expression) child);
+//            }
+//        }
+//    }
+//
+//    private void checkFunctionParameters(FunctionParameters child) {
+//    }
 
+    // Extracted methods
+    private boolean isColorOrBool(ExpressionType type) {
+        return type == ExpressionType.COLOR || type == ExpressionType.BOOL;
+    }
+    
     private void checkScopedBlock(ASTNode node) {
-        HashMap<String, ExpressionType> map = new HashMap<>();
-        variableTypes.addFirst(map);
+        enterNewScope();
 
         for(ASTNode child : node.getChildren()) {
             if(child instanceof VariableAssignment) {
@@ -161,7 +220,12 @@ public class Checker {
             } else if (child instanceof IfClause) {
                 checkIfClause((IfClause) child);
             }
+//            else if (child instanceof Mixin) {
+//                checkMixin((Mixin) child);
+//            } else if (child instanceof Function) {
+//                checkFunction((Function) child);
+//            }
         }
-        variableTypes.removeFirst();
+        exitScope();
     }
 }

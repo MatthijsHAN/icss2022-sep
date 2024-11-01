@@ -1,0 +1,22 @@
+Test := -1 * (-10 /2);
+
+p {
+    if[5 == Test] {
+        width: 1px;
+    }
+    if[TRUE != FALSE] {
+        width: 2px;
+    }
+    if[5px <= 8px] {
+        width: 3px;
+    }
+    if[5% >= 5%] {
+        width: 4px;
+    }
+    if[5 < 9] {
+        width: 5px;
+    }
+    if[5 > 1] {
+        width: 6px;
+    }
+}

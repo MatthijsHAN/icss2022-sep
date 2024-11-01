@@ -54,7 +54,8 @@ AT: '@';
 //--- PARSER: ---
 
 //Stylesheet
-stylesheet: (stylerule|variableAssignment|mixin|function)* EOF;
+stylesheet: (stylerule|variableAssignment)* EOF;
+//stylesheet: (stylerule|variableAssignment|mixin|function)* EOF;
 
 //Stylerule
 stylerule: selector OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
@@ -65,10 +66,10 @@ selector: ID_IDENT     #idSelector
 
 stylerulebody: declaration
              | variableAssignment
-             | opt
-             | mixin
-             | mixinCall
-             | function;
+             | opt;
+//             | mixin
+//             | mixinCall
+//             | function;
 
 //Declaration
 declaration: propertyName COLON expression SEMICOLON;
@@ -113,21 +114,21 @@ literal: COLOR               #colorLiteral
        | MIN? SCALAR         #scalarLiteral
        | TRUE                #boolLiteral
        | FALSE               #boolLiteral
-       | variableName        #variableReference
-       | functionCall        #functionReference;
+       | variableName        #variableReference;
+//       | functionCall        #functionReference;
 
 //Code-blocks/ Mixins
-mixin: 'mixin' mixinName OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
-
-mixinName: CAPITAL_IDENT;
-
-mixinCall: AT mixinName SEMICOLON;
-
-//Functions
-function: 'function' functionName BOX_BRACKET_OPEN functionParameters? BOX_BRACKET_CLOSE OPEN_BRACE expression? CLOSE_BRACE;
-
-functionName: CAPITAL_IDENT;
-
-functionParameters: variableName(','variableName)*;
-
-functionCall: AT functionName BOX_BRACKET_OPEN (expression(','expression)*)? BOX_BRACKET_CLOSE;
+//mixin: 'mixin' mixinName OPEN_BRACE (stylerulebody)* CLOSE_BRACE;
+//
+//mixinName: CAPITAL_IDENT;
+//
+//mixinCall: AT mixinName SEMICOLON;
+//
+////Functions
+//function: 'function' functionName BOX_BRACKET_OPEN functionParameters? BOX_BRACKET_CLOSE OPEN_BRACE expression? CLOSE_BRACE;
+//
+//functionName: CAPITAL_IDENT;
+//
+//functionParameters: variableName(','variableName)*;
+//
+//functionCall: AT functionName BOX_BRACKET_OPEN (expression(','expression)*)? BOX_BRACKET_CLOSE;

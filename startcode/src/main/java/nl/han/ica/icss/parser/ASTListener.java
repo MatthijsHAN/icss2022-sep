@@ -58,90 +58,90 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     // Handle functions
-    @Override
-    public void enterFunction(ICSSParser.FunctionContext ctx) {
-        Function function = new Function();
-        currentContainer.push(function);
-    }
-
-    @Override
-    public void exitFunction(ICSSParser.FunctionContext ctx) {
-        Function function = (Function) currentContainer.pop();
-        currentContainer.peek().addChild(function);
-    }
-
-    @Override
-    public void enterFunctionName(ICSSParser.FunctionNameContext ctx) {
-        FunctionReference functionReference = new FunctionReference(ctx.getText());
-        currentContainer.push(functionReference);
-    }
-
-    @Override
-    public void exitFunctionName(ICSSParser.FunctionNameContext ctx) {
-        FunctionReference functionReference = (FunctionReference) currentContainer.pop();
-        currentContainer.peek().addChild(functionReference);
-    }
-
-    @Override
-    public void enterFunctionReference(ICSSParser.FunctionReferenceContext ctx) {
-        FunctionReference functionReference = new FunctionReference(ctx.getText());
-        currentContainer.push(functionReference);
-    }
-
-    @Override
-    public void exitFunctionReference(ICSSParser.FunctionReferenceContext ctx) {
-        FunctionReference functionReference = (FunctionReference) currentContainer.pop();
-        currentContainer.peek().addChild(functionReference);
-    }
-
-    @Override
-    public void enterFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
-        FunctionParameters functionParameters = new FunctionParameters();
-        currentContainer.push(functionParameters);
-    }
-
-    @Override
-    public void exitFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
-        FunctionParameters functionParameters = (FunctionParameters) currentContainer.pop();
-        currentContainer.peek().addChild(functionParameters);
-    }
-
-    @Override
-    public void enterFunctionCall(ICSSParser.FunctionCallContext ctx) {
-        FunctionCall functionCall = new FunctionCall();
-        currentContainer.push(functionCall);
-    }
-
-    @Override
-    public void exitFunctionCall(ICSSParser.FunctionCallContext ctx) {
-        FunctionCall functionCall = (FunctionCall) currentContainer.pop();
-        currentContainer.peek().addChild(functionCall);
-    }
-
-    // Handle mixins
-    @Override
-    public void enterMixin(ICSSParser.MixinContext ctx) {
-        Mixin mixin = new Mixin();
-        currentContainer.push(mixin);
-    }
-
-    @Override
-    public void exitMixin(ICSSParser.MixinContext ctx) {
-        Mixin mixin = (Mixin) currentContainer.pop();
-        currentContainer.peek().addChild(mixin);
-    }
-
-    @Override
-    public void enterMixinName(ICSSParser.MixinNameContext ctx) {
-        MixinReference mixinReference = new MixinReference(ctx.getText());
-        currentContainer.push(mixinReference);
-    }
-
-    @Override
-    public void exitMixinName(ICSSParser.MixinNameContext ctx) {
-        MixinReference mixinReference = (MixinReference) currentContainer.pop();
-        currentContainer.peek().addChild(mixinReference);
-    }
+//    @Override
+//    public void enterFunction(ICSSParser.FunctionContext ctx) {
+//        Function function = new Function();
+//        currentContainer.push(function);
+//    }
+//
+//    @Override
+//    public void exitFunction(ICSSParser.FunctionContext ctx) {
+//        Function function = (Function) currentContainer.pop();
+//        currentContainer.peek().addChild(function);
+//    }
+//
+//    @Override
+//    public void enterFunctionName(ICSSParser.FunctionNameContext ctx) {
+//        FunctionReference functionReference = new FunctionReference(ctx.getText());
+//        currentContainer.push(functionReference);
+//    }
+//
+//    @Override
+//    public void exitFunctionName(ICSSParser.FunctionNameContext ctx) {
+//        FunctionReference functionReference = (FunctionReference) currentContainer.pop();
+//        currentContainer.peek().addChild(functionReference);
+//    }
+//
+//    @Override
+//    public void enterFunctionReference(ICSSParser.FunctionReferenceContext ctx) {
+//        FunctionReference functionReference = new FunctionReference(ctx.getText());
+//        currentContainer.push(functionReference);
+//    }
+//
+//    @Override
+//    public void exitFunctionReference(ICSSParser.FunctionReferenceContext ctx) {
+//        FunctionReference functionReference = (FunctionReference) currentContainer.pop();
+//        currentContainer.peek().addChild(functionReference);
+//    }
+//
+//    @Override
+//    public void enterFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
+//        FunctionParameters functionParameters = new FunctionParameters();
+//        currentContainer.push(functionParameters);
+//    }
+//
+//    @Override
+//    public void exitFunctionParameters(ICSSParser.FunctionParametersContext ctx) {
+//        FunctionParameters functionParameters = (FunctionParameters) currentContainer.pop();
+//        currentContainer.peek().addChild(functionParameters);
+//    }
+//
+//    @Override
+//    public void enterFunctionCall(ICSSParser.FunctionCallContext ctx) {
+//        FunctionCall functionCall = new FunctionCall();
+//        currentContainer.push(functionCall);
+//    }
+//
+//    @Override
+//    public void exitFunctionCall(ICSSParser.FunctionCallContext ctx) {
+//        FunctionCall functionCall = (FunctionCall) currentContainer.pop();
+//        currentContainer.peek().addChild(functionCall);
+//    }
+//
+//    // Handle mixins
+//    @Override
+//    public void enterMixin(ICSSParser.MixinContext ctx) {
+//        Mixin mixin = new Mixin();
+//        currentContainer.push(mixin);
+//    }
+//
+//    @Override
+//    public void exitMixin(ICSSParser.MixinContext ctx) {
+//        Mixin mixin = (Mixin) currentContainer.pop();
+//        currentContainer.peek().addChild(mixin);
+//    }
+//
+//    @Override
+//    public void enterMixinName(ICSSParser.MixinNameContext ctx) {
+//        MixinReference mixinReference = new MixinReference(ctx.getText());
+//        currentContainer.push(mixinReference);
+//    }
+//
+//    @Override
+//    public void exitMixinName(ICSSParser.MixinNameContext ctx) {
+//        MixinReference mixinReference = (MixinReference) currentContainer.pop();
+//        currentContainer.peek().addChild(mixinReference);
+//    }
 
     // Handle if and else
     @Override

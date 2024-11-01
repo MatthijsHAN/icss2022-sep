@@ -127,12 +127,18 @@ public class Evaluator implements Transform {
                 throw new IllegalStateException("Unexpected expression type in operation!");
             }
         } else if (expression instanceof BoolExpression) {
-            return new BoolLiteral(evalExpression(((BoolExpression) expression).left).equals(evalExpression(((BoolExpression) expression).right)));
+            return checkBoolExpression((BoolExpression) expression);
         } else if (expression instanceof VariableReference) {
             return applyVariableReference((VariableReference) expression);
         } else {
             return expression;
         }
+    }
+
+    private BoolLiteral checkBoolExpression(BoolExpression boolExpression) {
+        boolExpression.left = evalExpression(boolExpression.left);
+        boolExpression.right = evalExpression(boolExpression.right);
+        return new BoolLiteral(boolExpression.compareExpressions());
     }
 
     private boolean checkLiteralTypeIsInt(Expression expression) {
