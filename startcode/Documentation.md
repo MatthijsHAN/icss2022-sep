@@ -71,6 +71,7 @@ Matthijs Pieterse (22):
     Made some changes to the grammer and classes related to functionParameters
     parsing for functions, mixins and boolexpressions done
     Commented everything related to functions and mixins and finished the documentation
+    added short log
 
 michel (1):
     Initial commit february version
