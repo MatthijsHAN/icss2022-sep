@@ -47,9 +47,33 @@ Eigen uitbreidingen:
 | Functies/ herbruikbare formules (alleen tot en met het parsen gemaakt(is uitgecomment))   | Nee      | 5                  |  
 Voor bewijs zie: [src/main/resources/level5.icss]
 
-Git short log (van github: [https://github.com/MatthijsHAN/icss2022-sep.git]:
+Git short log (van github: [https://github.com/MatthijsHAN/icss2022-sep.git]):
+Matthijs Pieterse (22):                                                 
+    level 0 van de grammatica gemaakt en een start gemaakt met level 1
+    completed lvl 1
+    Created a 4th test file (not auto included in tests yet), fixed calculation rules and made the if expressions better
+    Made a start to the listener
+    created hanlinkedlist and han stack
+    Reorganised the grammer because of problems with the listener
+    Reworked the listener. Operations and if/else are not functional yet
+    changed the listener and grammer a bit to get the listener fully working.
+    Completed level 0 of the checker
+    Made a expressionchecker, but it doesn't check for scaler in multiply
+    fixed the expression checker and began working on the declaratiions again
+    Almost finished (only need to implement differnt levels) and created a way to make bool expressions for a if statement such as 5 == 5
+    added comment
+    finished the checking including checking my own aditions and variable scopes
+    Began working on the evaluator, currently can only transform expressions
+    finished evaluator
+    Finished the compiler and did the first round of cleaning the code up
+    added reminder
+    added the classes needed for own additions
+    Made some changes to the grammer and classes related to functionParameters
+    parsing for functions, mixins and boolexpressions done
+    Commented everything related to functions and mixins and finished the documentation
 
-
+michel (1):
+    Initial commit february version
 
 Technische keuzes:
 1. Ik heb er voor gekozen dat wanneer er wordt gevonden dat een pixelliteral en percantageliteral in dezelfde operatie 
